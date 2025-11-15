@@ -4,3 +4,11 @@ export interface Users {
   fullname: string;
   roleName: string;
 }
+export interface ParamsUser {
+  id: string;
+}
+export interface ChangePassword {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}

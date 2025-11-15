@@ -13,14 +13,32 @@ export default function GetAllUsers() {
 
   return (
     <div>
-      <h2>Danh sách người dùng</h2>
-      <ul>
-        {users.map((user) => (
-          <li key={user.id}>
-            {user.fullname} ({user.username}) - Vai trò: {user.roleName}
-          </li>
-        ))}
-      </ul>
+      <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl  ">Danh sách người dùng</h2>
+<table className="min-w-full table-auto m-auto border-collapse">
+        <thead>
+          <tr className="bg-amber-600 text-white">
+            <th className="px-4 py-2 text-left">ID</th>
+            <th className="px-4 py-2 text-left">Username</th>
+            <th className="px-4 py-2 text-left">FullName</th>
+            <th className="px-4 py-2 text-left">RoleName</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr
+              key={user.id}
+              className={user.id % 2 === 0 ? "bg-gray-100" : "bg-white"}
+            >
+              <td className="px-4 py-2">{user.id}</td>
+              <td className="px-4 py-2 text-gray-500">{user.username}</td>
+              <td className="px-4 py-2 text-gray-500">
+                {user.fullname ? user.fullname : <span className="italic">Chưa cập nhật</span>}
+              </td>
+              <td className="px-4 py-2">{user.roleName}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
