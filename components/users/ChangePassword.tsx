@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ChangePassword as ChangePasswordType } from "@/types/users";
 import { changeUserPassword } from "@/actions/users.actions";
-
+import { useNotification } from "@/contexts/NotificationContext";
 interface ChangePasswordFormProps {
   userId: string;
 }
@@ -15,12 +15,13 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { showSuccess, showError } = useNotification();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      alert("Mật khẩu mới và xác nhận mật khẩu không khớp!");
+      showError("Mật khẩu mới và xác nhận mật khẩu không khớp!");
       return;
     }
 
@@ -32,17 +33,17 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
         confirmPassword, // đúng tên trường
       };
 
-      const result =await changeUserPassword(userId, payload);
-      if(result.statusCode !== 200){
-        alert("Đổi mật khẩu thất bại!");
-      }
-      else
-      {
-        alert("Đổi mật khẩu thành công!");
+
+      const result = await changeUserPassword(userId, payload);
+
+      if (result.statusCode !== 200) {
+        showError("Đổi mật khẩu thất bại!");
+      } else {
+        showSuccess("Đổi mật khẩu thành công!");
       }
     } catch (error: any) {
       console.error(error);
-      alert(error?.message || "Có lỗi xảy ra!");
+      showError(error?.message || "Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }

@@ -5,16 +5,12 @@ import { updateUser, deleteUser } from "@/actions/users.actions";
 import type { Users } from "@/types/users";
 import Modal from "@/components/Modal";
 import { useRouter } from "next/navigation";
-interface GetUserByIDComponentProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function GetUserByIDComponent({ params }: GetUserByIDComponentProps) {
+import type { ParamsUser } from "@/types/users";
+import { useNotification } from "@/contexts/NotificationContext";
+export default function GetUserByIDComponent({ params }: { params: ParamsUser }) {
   const [user, setUser] = useState<Users | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const { showSuccess, showError } = useNotification();
   // State modal
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -34,25 +30,36 @@ export default function GetUserByIDComponent({ params }: GetUserByIDComponentPro
     fetchUser();
   }, [params.id]);
 
-  // Xử lý update
-  const handleUpdate = async () => {
-    if (!user) return;
+  // Xử lý cập nhật
+const handleUpdate = async () => {
+  if (!user) return;
 
-    try {
-      const res = await updateUser(user.id.toString(), fullname);
-      if (res.statusCode === 200) {
-        alert("Cập nhật thành công!");
-        setUser((prev) => (prev ? { ...prev, fullname: fullname } : prev));
-      } else {
-        alert("Cập nhật thất bại!");
-      }
-      
-      setShowUpdateModal(false);
-    } catch (error) {
-      alert("Có lỗi xảy ra khi cập nhật!");
-      console.error(error);
+  try {
+    const res = await updateUser(user.id.toString(), fullname);
+
+    if (res?.statusCode === 200) {
+      showSuccess(
+        "Cập nhật thành công",
+        res.message || "Thông tin người dùng đã được cập nhật."
+      );
+
+      setUser((prev) => (prev ? { ...prev, fullname } : prev));
+    } else {
+      showError(
+        "Cập nhật thất bại",
+        res?.message || "Cập nhật thông tin người dùng thất bại."
+      );
     }
-  };
+  } catch (err: any) {
+    showError(
+      "Có lỗi xảy ra!",
+      err?.message || "Đã xảy ra lỗi không xác định."
+    );
+  } finally {
+    setShowUpdateModal(false);
+  }
+};
+
 
   // Xử lý xóa
 const handleDelete = async () => {
@@ -61,22 +68,30 @@ const handleDelete = async () => {
   try {
     const res = await deleteUser(user.id.toString());
 
-    // Tùy API của bạn trả về gì, ở đây bạn nói statusCode=200
-    if (res.statusCode === 200) {
-      alert("Xóa thành công!");
-      // Xóa khỏi UI → user = null
-      setUser(null);
+    if (res?.statusCode === 200) {
+      showSuccess(
+        "Xóa thành công",
+        res?.message || "Tài khoản đã được xóa khỏi hệ thống."
+      );
 
-      setShowDeleteModal(false);
+      setUser(null);
     } else {
-      alert("Xóa thất bại!");
+      showError(
+        "Xóa thất bại",
+        res?.message || "Không thể xóa tài khoản."
+      );
     }
 
-  } catch (error) {
-    console.error(error);
-    alert("Có lỗi xảy ra khi xóa!");
+  } catch (err: any) {
+    showError(
+      "Có lỗi xảy ra!",
+      err?.message || "Đã xảy ra lỗi không xác định."
+    );
+  } finally {
+    setShowDeleteModal(false);
   }
 };
+
   // Đổi mât khẩu
   const router = useRouter();
   const handleChangePassword = () => {

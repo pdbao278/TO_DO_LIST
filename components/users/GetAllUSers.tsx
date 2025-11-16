@@ -14,7 +14,7 @@ export default function GetAllUsers() {
   return (
     <div>
       <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl  ">Danh sách người dùng</h2>
-<table className="min-w-full table-auto m-auto border-collapse">
+      <table className="min-w-full table-auto m-auto border-collapse">
         <thead>
           <tr className="bg-amber-600 text-white">
             <th className="px-4 py-2 text-left">ID</th>
@@ -24,10 +24,10 @@ export default function GetAllUsers() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {users.map((user, index) => (
             <tr
               key={user.id}
-              className={user.id % 2 === 0 ? "bg-gray-100" : "bg-white"}
+              className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
             >
               <td className="px-4 py-2">{user.id}</td>
               <td className="px-4 py-2 text-gray-500">{user.username}</td>
@@ -38,6 +38,7 @@ export default function GetAllUsers() {
             </tr>
           ))}
         </tbody>
+
       </table>
     </div>
   );

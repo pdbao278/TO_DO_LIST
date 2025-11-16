@@ -13,7 +13,6 @@ export default async function UsersPage({ params }: { params: Promise<ParamsUser
         Đổi mật khẩu người dùng: 
       </h2>
 
-      {/* Truyền userId từ params.id vào ChangePasswordForm */}
       <ChangePasswordForm userId={resolvedParams.id} />
     </main>
   );
