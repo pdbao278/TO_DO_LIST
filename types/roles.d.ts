@@ -4,7 +4,18 @@ export interface Roles {
     createdAt: string;
     updatedAt: string;
 }
-export interface NewRole {
+export interface NewRoles {
     name: string;
     displayName: string;
+}
+export interface ParamsRoles {
+    id: string;
+}
+
+export interface UpdateRoles {
+    name: string;
+    displayName: string;
+}
+export interface ParamsRoles {
+    rolesname: string;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import type { NewRole } from "@/types/roles";
+import type { NewRoles } from "@/types/roles";
 import { createRole } from "@/actions/roles.actions";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ export default function AddRoles() {
         setLoading(true);
 
         try {
-            const newRoles: NewRole = {
+            const newRoles: NewRoles = {
                 name,
                 displayName,
             };
@@ -44,33 +44,36 @@ export default function AddRoles() {
     };
 
     return (
-        <div className="p-4">
+        <div className="p-4 border border-gray-300 rounded mb-6 max-w-3xl m-auto bg-orange-200">
+            <h1 className="flex justify-center items-center ">Thêm roles mới:</h1>
             <form
                 className="flex items-center justify-center gap-2"
                 onSubmit={handleSubmit}
             >
-                <label className="mb-1 font-semibold">Nhập Name</label>
+                {/* <label className="mb-1 font-semibold"></label> */}
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="border border-gray-300 p-2 rounded mb-2 w-64"
+                    className="border border-gray-600 p-2 rounded mb-2 w-64"
+                    placeholder="Nhập Name"
                     required
                 />
 
-                <label className="mb-1 font-semibold">Nhập Display Name</label>
+                {/* <label className="mb-1 font-semibold"></label> */}
                 <input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="border border-gray-300 p-2 rounded mb-4 w-64"
+                    className="border border-gray-600 p-2 rounded mb-4 w-64"
+                    placeholder="Nhập Display Name"
                     required
                 />
 
                 <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="bg-blue-600 p-2 rounded hover:bg-blue-300 transition-colors disabled:opacity-50 text-white "
                 >
                     {loading ? "Đang thêm..." : "Thêm Roles"}
                 </button>

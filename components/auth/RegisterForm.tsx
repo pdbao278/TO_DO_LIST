@@ -52,7 +52,7 @@ export default function RegisterForm() {
       className="space-y-4"
     >
       <Form.Item
-        name="text"
+        name="username"
         label={
           <span className="font-medium text-gray-700">Tên người dùng</span>
         }

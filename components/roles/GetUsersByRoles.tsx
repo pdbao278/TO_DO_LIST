@@ -1,15 +1,37 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getAllUsers } from "@/actions/users.actions";
+import { getUsersByRoleName } from "@/actions/roles.actions";
 import type { Users } from "@/types/users";
 import { useRouter } from "next/navigation";
-export default function GetAllUsers() {
+import type { ParamsRoles } from "@/types/roles";
+
+export default function GetUsersByRoles({ params }: { params: ParamsRoles }) {
   const [users, setUsers] = useState<Users[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+
   useEffect(() => {
-    getAllUsers().then(setUsers);
-  }, []);
+    let mounted = true;
+
+    async function fetchUsers() {
+      setLoading(true);
+      try {
+        const data = await getUsersByRoleName(params.rolesname);
+        if (mounted) setUsers(data || []);
+      } catch (err) {
+        console.error("getUsersByRoleName error", err);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchUsers();
+
+    return () => {
+      mounted = false;
+    };
+  }, [params]);
 
   return (
     <div>

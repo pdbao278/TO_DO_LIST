@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SearchUser() {
+export default function SearchRoles() {
   const [searchId, setSearchId] = useState("");
   const router = useRouter();
 
@@ -16,7 +16,7 @@ export default function SearchUser() {
     <div className="flex justify-center gap-2 my-4">
       <input
         type="text"
-        placeholder="Nhập ID user..."
+        placeholder="Nhập ID roles..."
         value={searchId}
         onChange={(e) => setSearchId(e.target.value)}
         className="border p-2 rounded w-xl"

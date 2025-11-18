@@ -30,7 +30,7 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
       const payload: ChangePasswordType = {
         oldPassword,
         newPassword,
-        confirmPassword, // đúng tên trường
+        confirmPassword, 
       };
 
 
@@ -40,6 +40,7 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
         showError("Đổi mật khẩu thất bại!");
       } else {
         showSuccess("Đổi mật khẩu thành công!");
+        router.push("/auth");
       }
     } catch (error: any) {
       console.error(error);
