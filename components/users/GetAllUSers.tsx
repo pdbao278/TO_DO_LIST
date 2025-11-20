@@ -6,11 +6,11 @@ import type { Users } from "@/types/users";
 import { useRouter } from "next/navigation";
 export default function GetAllUsers() {
   const [users, setUsers] = useState<Users[]>([]);
+
   const router = useRouter();
   useEffect(() => {
     getAllUsers().then(setUsers);
   }, []);
-
   return (
     <div>
       <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl  ">Danh sách người dùng</h2>

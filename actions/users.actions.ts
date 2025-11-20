@@ -1,7 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
 import type { Users } from "@/types/users";
-import type { ChangePassword } from "@/types/users";
+import type { ChangePassword ,ChangePasswordAdmin } from "@/types/users";
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 // Get all users
@@ -77,21 +77,37 @@ export const deleteUser = async (id: string) => {
 
 // Change user password
 export const changeUserPassword = async (id: string, formData: ChangePassword) => {
-  const token = (await cookies()).get("accessToken")?.value;
 
   const response = await fetch(`${API_URL}/users/${id}/change-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
     },
     // gửi trực tiếp object (không bọc trong { formData })
     body: JSON.stringify(formData),
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
-    throw new Error(errorData.message || "Failed to change password");
+    throw new Error("Failed to change password");
+  }
+
+  return await response.json();
+};
+
+export const changePasswordAdmin = async (id: string,formData: ChangePasswordAdmin) => {
+   const response = await fetch(`${API_URL}/users/${id}/change-password-admin`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
+    },
+    // gửi trực tiếp object (không bọc trong { formData })
+    body: JSON.stringify(formData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to change password admin");
   }
 
   return await response.json();

@@ -51,7 +51,7 @@ export default function GetAllRoles() {
                   <span className="italic">Chưa có dữ liệu</span>
                 )}
               </td>
-              <td className="px-4 py-2 text-gray-500"
+              <td className="px-4 py-2 text-blue-500"
               onClick={() =>{ router.push(`/roles/search-user/${role.name}`)} }
               >Danh sách người dùng</td>
             </tr>

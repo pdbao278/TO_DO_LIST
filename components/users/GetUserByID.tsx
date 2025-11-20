@@ -1,22 +1,41 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { getUserByID } from "@/actions/users.actions";
 import { updateUser, deleteUser } from "@/actions/users.actions";
 import type { Users } from "@/types/users";
 import Modal from "@/components/Modal";
 import { useRouter } from "next/navigation";
-import type { ParamsUser } from "@/types/users";
+import { ParamsUser } from "@/types/users";
 import { useNotification } from "@/contexts/NotificationContext";
+import { IInfoToken } from "@/types/auth";
+import { getInfoToken } from "@/actions/auth.actions";
+
 export default function GetUserByIDComponent({ params }: { params: ParamsUser }) {
   const [user, setUser] = useState<Users | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { showSuccess, showError } = useNotification();
-  // State modal
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  // Form update
+  const [tokens, setTokens] = useState<IInfoToken | null>(null);
   const [fullname, setFullname] = useState("");
+  const router = useRouter();
+
+  // Fetch user information
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const response = await getInfoToken();
+        if (response.ok && response.data) {
+          setTokens(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchToken();
+  }, []);
 
   useEffect(() => {
     async function fetchUser() {
@@ -30,70 +49,47 @@ export default function GetUserByIDComponent({ params }: { params: ParamsUser })
     fetchUser();
   }, [params.id]);
 
-  // Xử lý cập nhật
-const handleUpdate = async () => {
-  if (!user) return;
+  // Handle update
+  const handleUpdate = async () => {
+    if (!user) return;
 
-  try {
-    const res = await updateUser(user.id.toString(), fullname);
+    try {
+      const res = await updateUser(user.id.toString(), fullname);
 
-    if (res?.statusCode === 200) {
-      showSuccess(
-        "Cập nhật thành công",
-        res.message || "Thông tin người dùng đã được cập nhật."
-      );
-
-      setUser((prev) => (prev ? { ...prev, fullname } : prev));
-    } else {
-      showError(
-        "Cập nhật thất bại",
-        res?.message || "Cập nhật thông tin người dùng thất bại."
-      );
+      if (res?.statusCode === 200) {
+        showSuccess("Cập nhật thành công", res.message || "Thông tin người dùng đã được cập nhật.");
+        setUser((prev) => (prev ? { ...prev, fullname } : prev));
+      } else {
+        showError("Cập nhật thất bại", res?.message || "Cập nhật thông tin người dùng thất bại.");
+      }
+    } catch (err: any) {
+      showError("Có lỗi xảy ra!", err?.message || "Đã xảy ra lỗi không xác định.");
+    } finally {
+      setShowUpdateModal(false);
     }
-  } catch (err: any) {
-    showError(
-      "Có lỗi xảy ra!",
-      err?.message || "Đã xảy ra lỗi không xác định."
-    );
-  } finally {
-    setShowUpdateModal(false);
-  }
-};
+  };
 
+  // Handle delete
+  const handleDelete = async () => {
+    if (!user) return;
 
-  // Xử lý xóa
-const handleDelete = async () => {
-  if (!user) return;
+    try {
+      const res = await deleteUser(user.id.toString());
 
-  try {
-    const res = await deleteUser(user.id.toString());
-
-    if (res?.statusCode === 200) {
-      showSuccess(
-        "Xóa thành công",
-        res?.message || "Tài khoản đã được xóa khỏi hệ thống."
-      );
-
-      setUser(null);
-    } else {
-      showError(
-        "Xóa thất bại",
-        res?.message || "Không thể xóa tài khoản."
-      );
+      if (res?.statusCode === 200) {
+        showSuccess("Xóa thành công", res?.message || "Tài khoản đã được xóa khỏi hệ thống.");
+        setUser(null); // Clear user data
+      } else {
+        showError("Xóa thất bại", res?.message || "Không thể xóa tài khoản.");
+      }
+    } catch (err: any) {
+      showError("Có lỗi xảy ra!", err?.message || "Đã xảy ra lỗi không xác định.");
+    } finally {
+      setShowDeleteModal(false);
     }
+  };
 
-  } catch (err: any) {
-    showError(
-      "Có lỗi xảy ra!",
-      err?.message || "Đã xảy ra lỗi không xác định."
-    );
-  } finally {
-    setShowDeleteModal(false);
-  }
-};
-
-  // Đổi mât khẩu
-  const router = useRouter();
+  // Change password
   const handleChangePassword = () => {
     router.push(`/users/${params.id}/change-password`);
   };
@@ -137,7 +133,17 @@ const handleDelete = async () => {
               <td className="px-4 py-2 text-red-600 font-bold cursor-pointer">
                 <button onClick={() => setShowDeleteModal(true)}>Xóa</button>
               </td>
-              <td className="px-4 py-2 text-red-600 font-bold cursor-pointer" onClick={handleChangePassword}>Đổi mật khẩu</td>
+              <td className="px-4 py-2">
+                {user.username === tokens?.username && !loading && (
+                  <span
+                    className="text-red-600 font-bold cursor-pointer"
+                    onClick={handleChangePassword}
+                  >
+                    Đổi mật khẩu
+                  </span>
+                )}
+                {loading && <span>Đang xử lý...</span>}
+              </td>
             </tr>
           ) : (
             <tr>

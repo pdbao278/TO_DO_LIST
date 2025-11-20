@@ -3,7 +3,6 @@
 import { getInfoToken } from "@/actions/auth.actions";
 import { IInfoToken } from "@/types/auth";
 import { useEffect, useState } from "react";
-
 export default function Home() {
   const [user, setUser] = useState<IInfoToken | null>(null);
 

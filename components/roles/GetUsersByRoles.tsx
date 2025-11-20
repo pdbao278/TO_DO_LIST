@@ -35,7 +35,7 @@ export default function GetUsersByRoles({ params }: { params: ParamsRoles }) {
 
   return (
     <div>
-      <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl  ">Danh sách người dùng</h2>
+      <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl  ">Danh sách người dùng có vai trò là: {params.rolesname}</h2>
       <table className="min-w-full table-auto m-auto border-collapse">
         <thead>
           <tr className="bg-amber-600 text-white">

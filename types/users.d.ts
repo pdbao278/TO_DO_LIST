@@ -12,3 +12,6 @@ export interface ChangePassword {
   newPassword: string;
   confirmPassword: string;
 }
+export interface ChangePasswordAdmin {
+  newPassword: string;
+}

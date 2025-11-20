@@ -44,40 +44,39 @@ export default function AddRoles() {
     };
 
     return (
-        <div className="p-4 border border-gray-300 rounded mb-6 max-w-3xl m-auto bg-orange-200">
-            <h1 className="flex justify-center items-center ">Thêm roles mới:</h1>
-            <form
-                className="flex items-center justify-center gap-2"
-                onSubmit={handleSubmit}
-            >
-                {/* <label className="mb-1 font-semibold"></label> */}
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="border border-gray-600 p-2 rounded mb-2 w-64"
-                    placeholder="Nhập Name"
-                    required
-                />
+<div className="p-8 bg-white rounded-lg shadow-md mb-6 max-w-3xl m-auto">
+  <h1 className="text-3xl font-semibold text-center text-gray-700 mb-6">Thêm roles mới:</h1>
+  
+  <form className="flex flex-col items-center gap-4" onSubmit={handleSubmit}>
 
-                {/* <label className="mb-1 font-semibold"></label> */}
-                <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="border border-gray-600 p-2 rounded mb-4 w-64"
-                    placeholder="Nhập Display Name"
-                    required
-                />
+    <input
+      type="text"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="w-80 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+      placeholder="Nhập Name"
+      required
+    />
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-blue-600 p-2 rounded hover:bg-blue-300 transition-colors disabled:opacity-50 text-white "
-                >
-                    {loading ? "Đang thêm..." : "Thêm Roles"}
-                </button>
-            </form>
-        </div>
+    <input
+      type="text"
+      value={displayName}
+      onChange={(e) => setDisplayName(e.target.value)}
+      className="w-80 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+      placeholder="Nhập Display Name"
+      required
+    />
+    
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-80 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      {loading ? "Đang thêm..." : "Thêm Roles"}
+    </button>
+    
+  </form>
+</div>
+
     );
 }
