@@ -1,12 +1,13 @@
 "use server";
 import { cookies } from "next/headers";
-import type { Roles } from "@/types/roles";
+import type { IRoles } from "@/types/roles";
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
-import type { NewRoles } from "@/types/roles";
-import type { UpdateRoles } from "@/types/roles";
-import type {Users} from "@/types/users";
+import type { INewRoles } from "@/types/roles";
+import type { IUpdateRoles } from "@/types/roles";
+import type {IUsers} from "@/types/users";
+import { IBaseResponse, IIndexResponse, IShowResponse ,IResponse} from "@/types/global";
 // Get All Roles
-export const getAllRoles = async (): Promise<Roles[]> => {
+export const getAllRoles = async (): Promise<IIndexResponse<IRoles>> => {
   const response = await fetch(`${API_URL}/roles/`, {
     method: "GET",
     headers: {
@@ -14,16 +15,18 @@ export const getAllRoles = async (): Promise<Roles[]> => {
       Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
     },
   });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch roles");
-  }
-
   const data = await response.json();
-  return data.data as Roles[];
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+    data: data.data as IRoles[],
+  } as IIndexResponse<IRoles>;
+  
 };
  // Create New Role
-export const createRole = async (formData: NewRoles) => {
+export const createRole = async (formData: INewRoles) => {
   const response = await fetch(`${API_URL}/roles/`, {
     method: "POST",
     headers: {
@@ -32,13 +35,16 @@ export const createRole = async (formData: NewRoles) => {
     },
     body: JSON.stringify(formData),
   });
-  if (!response.ok) {
-    throw new Error("Failed to create role");
-  }
-  return await response.json();
+  const data = await response.json();
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+  } as IBaseResponse;
 };
 
-export const getRoleByID = async (roleId: string): Promise<Roles> => {
+export const getRoleByID = async (roleId: string): Promise<IShowResponse<IRoles>> => {
   const response = await fetch(`${API_URL}/roles/${roleId}`, {
     method: "GET",
     headers: {
@@ -47,15 +53,18 @@ export const getRoleByID = async (roleId: string): Promise<Roles> => {
     },
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch role");
-  } 
-  const data = await response.json();
-  return data.data as Roles;
+    const data = await response.json();
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+    data: data.data as IRoles,
+  } as IShowResponse<IRoles>;
 };
 
 // Update Role
-export const updateRole = async (roleId: string, formData:UpdateRoles) => {
+export const updateRole = async (roleId: string, formData:IUpdateRoles) => {
   const response = await fetch(`${API_URL}/roles/${roleId}`, {
     method: "PATCH",
     headers: {
@@ -64,10 +73,13 @@ export const updateRole = async (roleId: string, formData:UpdateRoles) => {
     },
     body: JSON.stringify(formData),
   });
-  if (!response.ok) {
-    throw new Error("Failed to update role");
-  }
-  return await response.json();
+    const data = await response.json();
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+  } as IBaseResponse;
 };
 // Delete Role
 export const deleteRole = async (roleId: string) => {
@@ -78,15 +90,18 @@ export const deleteRole = async (roleId: string) => {
       Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
     },
   }); 
-  if (!response.ok) {
-    throw new Error("Failed to delete role");
-  }
-  return await response.json();
+    const data = await response.json();
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+  } as IBaseResponse;
 }
 
 
 // Get Users by Role Name
-export const getUsersByRoleName = async (roleName: string): Promise<Users[]> => {
+export const getUsersByRoleName = async (roleName: string): Promise<IIndexResponse<IUsers>> => {
   const response = await fetch(`${API_URL}/roles/search-user/${roleName}`, {
     method: "GET",
     headers: {
@@ -94,9 +109,11 @@ export const getUsersByRoleName = async (roleName: string): Promise<Users[]> => 
       Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
     },
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch users by role name");
-  }
   const data = await response.json();
-  return data.data as Users[];
+  return {
+    ok: response.ok,
+    message:data.message,
+    statusCode: response.status,
+    data: data.data as IUsers[],
+  } as IIndexResponse<IUsers>;
 }

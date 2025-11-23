@@ -2,22 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { setRoleToken } from "@/actions/tokens.action";
-import type { SetRoleToken } from "@/types/tokens";
+import type { ISetRoleToken } from "@/types/tokens";
 import { useNotification } from "@/contexts/NotificationContext";
 import { getAllRoles } from "@/actions/roles.actions";
-import type { Roles } from "@/types/roles";
+import type { IRoles } from "@/types/roles";
 export default function SearchRoles() {
     const { showSuccess, showError } = useNotification();
     const [id, setId] = useState(0);
     const [roleName, setRoleName] = useState("");
     const [loading, setLoading] = useState(false);
-    const [roles, setRoles] = useState<Roles[]>([]);
+    const [roles, setRoles] = useState<IRoles[]>([]);
 
     useEffect(() => {
         const fetchRoles = async () => {
             try {
                 const roles = await getAllRoles();
-                setRoles(roles);
+                setRoles(roles.data);
             } catch (error) {
                 console.error(error);
                 showError("Có lỗi xảy ra!");
@@ -29,7 +29,7 @@ export default function SearchRoles() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const payload: SetRoleToken = {
+        const payload: ISetRoleToken = {
             id: id,
             roleName: roleName,
         };

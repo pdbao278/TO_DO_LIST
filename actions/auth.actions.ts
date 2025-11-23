@@ -88,7 +88,7 @@ export const getInfoToken = async () => {
 
   return {
     ok: response.ok,
-    status: response.status,
+    statusCode: response.status,
     data: data.data as IInfoToken,
   } as IShowResponse<IInfoToken>;
 };

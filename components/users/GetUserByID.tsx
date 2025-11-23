@@ -1,50 +1,50 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getUserByID } from "@/actions/users.actions";
-import { updateUser, deleteUser } from "@/actions/users.actions";
-import type { Users } from "@/types/users";
-import Modal from "@/components/Modal";
+import { getUserByID, updateUser, deleteUser } from "@/actions/users.actions";
 import { useRouter } from "next/navigation";
-import { ParamsUser } from "@/types/users";
-import { useNotification } from "@/contexts/NotificationContext";
-import { IInfoToken } from "@/types/auth";
+import type { IUsers, IParamsUser } from "@/types/users";
+import type { IInfoToken } from "@/types/auth";
 import { getInfoToken } from "@/actions/auth.actions";
+import { useNotification } from "@/contexts/NotificationContext";
+import Modal from "@/components/Modal";
 
-export default function GetUserByIDComponent({ params }: { params: ParamsUser }) {
-  const [user, setUser] = useState<Users | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const { showSuccess, showError } = useNotification();
+export default function GetUserByIDComponent({ params }: { params: IParamsUser }) {
+  const [user, setUser] = useState<IUsers | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fullname, setFullname] = useState("");
+  const [tokens, setTokens] = useState<IInfoToken | null>(null);
+
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [tokens, setTokens] = useState<IInfoToken | null>(null);
-  const [fullname, setFullname] = useState("");
-  const router = useRouter();
 
-  // Fetch user information
+  const router = useRouter();
+  const { showSuccess, showError } = useNotification();
+
+  // Get token info
   useEffect(() => {
     const fetchToken = async () => {
-      try {
-        const response = await getInfoToken();
-        if (response.ok && response.data) {
-          setTokens(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
+      const res = await getInfoToken();
+      if (res.ok && res.data) setTokens(res.data);
     };
-
     fetchToken();
   }, []);
 
+  // Fetch user by ID
   useEffect(() => {
-    async function fetchUser() {
+    const fetchUser = async () => {
       setLoading(true);
-      const fetchedUser = await getUserByID(params.id.toLowerCase());
-      setUser(fetchedUser);
-      setFullname(fetchedUser?.fullname || "");
+
+      const res = await getUserByID(params.id.toLowerCase());
+      if (res.ok && res.data) {
+        setUser(res.data);
+        setFullname(res.data.fullname ?? "");
+      } else {
+        setUser(null);
+      }
+
       setLoading(false);
-    }
+    };
 
     fetchUser();
   }, [params.id]);
@@ -53,151 +53,141 @@ export default function GetUserByIDComponent({ params }: { params: ParamsUser })
   const handleUpdate = async () => {
     if (!user) return;
 
-    try {
-      const res = await updateUser(user.id.toString(), fullname);
+    const res = await updateUser(user.id.toString(), {fullname:params.id});
 
-      if (res?.statusCode === 200) {
-        showSuccess("Cập nhật thành công", res.message || "Thông tin người dùng đã được cập nhật.");
-        setUser((prev) => (prev ? { ...prev, fullname } : prev));
-      } else {
-        showError("Cập nhật thất bại", res?.message || "Cập nhật thông tin người dùng thất bại.");
-      }
-    } catch (err: any) {
-      showError("Có lỗi xảy ra!", err?.message || "Đã xảy ra lỗi không xác định.");
-    } finally {
-      setShowUpdateModal(false);
+    if (res.ok) {
+      showSuccess("Cập nhật thành công",res.message);
+      setUser((prev) => (prev ? { ...prev, fullname } : prev));
+    } else {
+      showError("Cập nhật thất bại", res.message);
     }
+
+    setShowUpdateModal(false);
   };
 
   // Handle delete
   const handleDelete = async () => {
     if (!user) return;
 
-    try {
-      const res = await deleteUser(user.id.toString());
+    const res = await deleteUser(params.id);
 
-      if (res?.statusCode === 200) {
-        showSuccess("Xóa thành công", res?.message || "Tài khoản đã được xóa khỏi hệ thống.");
-        setUser(null); // Clear user data
-      } else {
-        showError("Xóa thất bại", res?.message || "Không thể xóa tài khoản.");
-      }
-    } catch (err: any) {
-      showError("Có lỗi xảy ra!", err?.message || "Đã xảy ra lỗi không xác định.");
-    } finally {
-      setShowDeleteModal(false);
+    if (res.ok) {
+      showSuccess("Xóa thành công");
+      setUser(null);
+    } else {
+      showError("Xóa thất bại", res.message);
     }
+
+    setShowDeleteModal(false);
   };
 
-  // Change password
   const handleChangePassword = () => {
     router.push(`/users/${params.id}/change-password`);
   };
 
   return (
-    <div>
-      <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl">
-        Thông tin người dùng
+    <div className="p-6">
+      <h2 className="text-center text-amber-600 text-3xl font-semibold mb-4">
+        Thông tin người dùng: {params.id}
       </h2>
 
-      <table className="min-w-full table-auto m-auto border-collapse mt-4">
-        <thead>
-          <tr className="bg-amber-600 text-white">
-            <th className="px-4 py-2 text-left">ID</th>
-            <th className="px-4 py-2 text-left">Username</th>
-            <th className="px-4 py-2 text-left">FullName</th>
-            <th className="px-4 py-2 text-left">RoleName</th>
-            <th className="px-4 py-2 text-left">Cập nhật</th>
-            <th className="px-4 py-2 text-left">Xóa</th>
-            <th className="px-4 py-2 text-left">Đổi mật khẩu</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan={6} className="text-center py-4 text-gray-500">
-                Đang tải dữ liệu...
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse shadow-sm rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-amber-600 text-white text-left">
+              <th className="px-4 py-3">ID</th>
+              <th className="px-4 py-3">Username</th>
+              <th className="px-4 py-3">FullName</th>
+              <th className="px-4 py-3">RoleName</th>
+              <th className="px-4 py-3">Cập nhật</th>
+              <th className="px-4 py-3">Xóa</th>
+              <th className="px-4 py-3">Đổi mật khẩu</th>
             </tr>
-          ) : user ? (
-            <tr className={user.id % 2 === 0 ? "bg-gray-100" : "bg-white"}>
-              <td className="px-4 py-2">{user.id}</td>
-              <td className="px-4 py-2 text-gray-500">{user.username}</td>
-              <td className="px-4 py-2 text-gray-500">
-                {user.fullname || <span className="italic">Chưa cập nhật</span>}
-              </td>
-              <td className="px-4 py-2">{user.roleName}</td>
-              <td className="px-4 py-2 text-green-600 font-bold cursor-pointer">
-                <button onClick={() => setShowUpdateModal(true)}>Cập nhật</button>
-              </td>
-              <td className="px-4 py-2 text-red-600 font-bold cursor-pointer">
-                <button onClick={() => setShowDeleteModal(true)}>Xóa</button>
-              </td>
-              <td className="px-4 py-2">
-                {user.username === tokens?.username && !loading && (
-                  <span
-                    className="text-red-600 font-bold cursor-pointer"
-                    onClick={handleChangePassword}
+          </thead>
+
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="text-center py-5 text-gray-500">
+                  Đang tải dữ liệu...
+                </td>
+              </tr>
+            ) : user ? (
+              <tr className="bg-white border-b hover:bg-gray-50 transition">
+                <td className="px-4 py-3">{user.id}</td>
+                <td className="px-4 py-3">{user.username}</td>
+                <td className="px-4 py-3">
+                  {user.fullname || <span className="italic text-gray-400">Chưa cập nhật</span>}
+                </td>
+                <td className="px-4 py-3">{user.roleName}</td>
+
+                <td className="px-4 py-3">
+                  <button
+                    className="text-green-600 font-semibold hover:underline"
+                    onClick={() => setShowUpdateModal(true)}
                   >
-                    Đổi mật khẩu
-                  </span>
-                )}
-                {loading && <span>Đang xử lý...</span>}
-              </td>
-            </tr>
-          ) : (
-            <tr>
-              <td colSpan={6} className="text-center py-4 text-gray-500">
-                Không tìm thấy người dùng
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+                    Cập nhật
+                  </button>
+                </td>
 
-      {/* === Modal Cập nhật === */}
-      <Modal
-        show={showUpdateModal}
-        title="Cập nhật người dùng"
-        onClose={() => setShowUpdateModal(false)}
-      >
-        <div>
-          <label>Fullname:</label>
-          <input
-            type="text"
-            value={fullname}
-            onChange={(e) => setFullname(e.target.value)}
-            className="border w-full p-2 mt-1"
-          />
+                <td className="px-4 py-3">
+                  <button
+                    className="text-red-600 font-semibold hover:underline"
+                    onClick={() => setShowDeleteModal(true)}
+                  >
+                    Xóa
+                  </button>
+                </td>
 
-          <button
-            className="bg-green-600 text-white px-4 py-2 mt-3 rounded"
-            onClick={handleUpdate}
-          >
-            Lưu thay đổi
-          </button>
-        </div>
+                <td className="px-4 py-3">
+                  {user.username === tokens?.username && (
+                    <button
+                      className="text-blue-600 font-semibold hover:underline"
+                      onClick={handleChangePassword}
+                    >
+                      Đổi mật khẩu
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td colSpan={7} className="text-center py-5 text-gray-500">
+                  Không tìm thấy người dùng
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal cập nhật */}
+      <Modal show={showUpdateModal} title="Cập nhật người dùng" onClose={() => setShowUpdateModal(false)}>
+        <label className="block font-medium mb-2">Fullname:</label>
+        <input
+          type="text"
+          value={fullname}
+          onChange={(e) => setFullname(e.target.value)}
+          className="border w-full p-2 rounded"
+        />
+
+        <button className="bg-green-600 text-white px-5 py-2 mt-4 rounded" onClick={handleUpdate}>
+          Lưu thay đổi
+        </button>
       </Modal>
 
-      {/* === Modal Xóa === */}
-      <Modal
-        show={showDeleteModal}
-        title="Xóa người dùng"
-        onClose={() => setShowDeleteModal(false)}
-      >
-        <p>Bạn có chắc muốn xóa người dùng: <b>{user?.username}</b>?</p>
-        <div className="flex justify-end gap-3 mt-4">
-          <button
-            className="bg-gray-300 px-3 py-1 rounded"
-            onClick={() => setShowDeleteModal(false)}
-          >
+      {/* Modal xóa */}
+      <Modal show={showDeleteModal} title="Xóa người dùng" onClose={() => setShowDeleteModal(false)}>
+        <p className="mb-4">
+          Bạn có chắc muốn xóa người dùng: <b>{user?.username}</b>?
+        </p>
+
+        <div className="flex justify-end gap-3">
+          <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setShowDeleteModal(false)}>
             Hủy
           </button>
 
-          <button
-            className="bg-red-600 text-white px-3 py-1 rounded"
-            onClick={handleDelete}
-          >
+          <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleDelete}>
             Xóa
           </button>
         </div>

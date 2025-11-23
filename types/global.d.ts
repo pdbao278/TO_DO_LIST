@@ -1,6 +1,6 @@
 interface IBaseResponse {
   ok: boolean
-  status: number
+  statusCode: number
   message: string
 }
 

@@ -1,17 +1,21 @@
-export interface Users {
+export interface IUsers {
   id: number;
   username: string;
   fullname: string;
   roleName: string;
 }
-export interface ParamsUser {
+export interface IParamsUser {
   id: string;
 }
-export interface ChangePassword {
+export interface IChangePassword {
   oldPassword: string;
   newPassword: string;
   confirmPassword: string;
 }
-export interface ChangePasswordAdmin {
+export interface IChangePasswordAdmin {
   newPassword: string;
+}
+export interface IUpdateUser{
+  fullname:string;
+
 }

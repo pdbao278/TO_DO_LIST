@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { getUsersByRoleName } from "@/actions/roles.actions";
-import type { Users } from "@/types/users";
+import type { IUsers } from "@/types/users";
 import { useRouter } from "next/navigation";
-import type { ParamsRoles } from "@/types/roles";
+import type { IParamsRoles } from "@/types/roles";
 
-export default function GetUsersByRoles({ params }: { params: ParamsRoles }) {
-  const [users, setUsers] = useState<Users[]>([]);
+export default function GetUsersByRoles({ params }: { params: IParamsRoles }) {
+  const [users, setUsers] = useState<IUsers[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
@@ -18,7 +18,7 @@ export default function GetUsersByRoles({ params }: { params: ParamsRoles }) {
       setLoading(true);
       try {
         const data = await getUsersByRoleName(params.rolesname);
-        if (mounted) setUsers(data || []);
+        if (mounted) setUsers(data.data || []);
       } catch (err) {
         console.error("getUsersByRoleName error", err);
       } finally {

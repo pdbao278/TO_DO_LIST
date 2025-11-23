@@ -3,30 +3,36 @@
 import { useEffect, useState } from "react";
 import { useNotification } from "@/contexts/NotificationContext";
 import { getTokenInfo } from "@/actions/tokens.action";
-import type { InfoToken } from "@/types/tokens";
+import type { IInfoToken } from "@/types/tokens";
 import { useRouter } from "next/navigation"; // Sửa Router => useRouter
 
 export default function SearchRoles() {
     const { showSuccess, showError } = useNotification();
     const [loading, setLoading] = useState(false);
-    const [token, setToken] = useState<InfoToken | null>(null);
+    const [token, setToken] = useState<IInfoToken | null>(null);
     const router = useRouter(); // Sử dụng hook useRouter để lấy router
 
     useEffect(() => {
-        const fetchTokenInfo = async () => {
-            setLoading(true); // Set loading true khi bắt đầu fetch
-            try {
-                const tokenInfo = await getTokenInfo();
-                setToken(tokenInfo); // Set token khi lấy thành công
-            } catch (error) {
-                console.error(error);
-                showError("Có lỗi xảy ra!");
-            } finally {
-                setLoading(false); // Set loading false khi xong
-            }
-        };
-        fetchTokenInfo();
-    }, []);
+  const fetchTokenInfo = async () => {
+    setLoading(true);
+    try {
+      const tokenInfo = await getTokenInfo();
+      if (tokenInfo.ok) {
+        setToken(tokenInfo.data); // Chỉ lưu IInfoToken
+      } else {
+        showError("Không thể lấy thông tin token: " + tokenInfo.message);
+      }
+    } catch (error: any) {
+      console.error("Lỗi khi fetch token:", error);
+      showError("Có lỗi xảy ra!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTokenInfo();
+}, []);
+
 
     if (loading) {
         return <div className="p-4 text-center">Đang tải thông tin token...</div>;

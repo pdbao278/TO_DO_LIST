@@ -2,15 +2,24 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllUsers } from "@/actions/users.actions";
-import type { Users } from "@/types/users";
+import type { IUsers } from "@/types/users";
 import { useRouter } from "next/navigation";
 export default function GetAllUsers() {
-  const [users, setUsers] = useState<Users[]>([]);
+  const [users, setUsers] = useState<IUsers[]>([]);
 
   const router = useRouter();
   useEffect(() => {
-    getAllUsers().then(setUsers);
-  }, []);
+  const fetchUsers = async () => {
+    const users = await getAllUsers();
+   if(users.ok){
+    setUsers(users.data)
+   }
+  };
+
+  fetchUsers();
+}, []);
+
+
   return (
     <div>
       <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl  ">Danh sách người dùng</h2>

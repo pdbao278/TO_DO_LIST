@@ -1,15 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getRoleByID } from "@/actions/roles.actions";
-import { updateRole, deleteRole } from "@/actions/roles.actions"; 
-
-import type { Roles } from "@/types/roles";
-import Modal from "@/components/Modal";
-import type { ParamsUser } from "@/types/users";
+import { getRoleByID, updateRole, deleteRole } from "@/actions/roles.actions"; 
+import type { IRoles } from "@/types/roles";
+import type { IParamsUser } from "@/types/users";
 import { useNotification } from "@/contexts/NotificationContext";
+import Modal from "@/components/Modal";
 
-export default function GetRoleByIDComponent({ params }: { params: ParamsUser }) {
-  const [role, setRole] = useState<Roles | null>(null);
+export default function GetRoleByIDComponent({ params }: { params: IParamsUser }) {
+  const [role, setRole] = useState<IRoles | null>(null);
   const [loading, setLoading] = useState(true);
 
   const { showSuccess, showError } = useNotification();
@@ -27,12 +25,16 @@ export default function GetRoleByIDComponent({ params }: { params: ParamsUser })
     async function fetchRole() {
       try {
         setLoading(true);
-        const fetchedRole = await getRoleByID(params.id);
-        setRole(fetchedRole);
-        setDisplayName(fetchedRole?.displayName || "");
-        setName(fetchedRole?.name || "");
-      } catch (error) {
-        showError("Lấy thông tin vai trò thất bại!");
+        const fetchedRole = await getRoleByID(params.id); // IShowResponse<IRoles>
+        if (fetchedRole.ok) {
+          setRole(fetchedRole.data);
+          setDisplayName(fetchedRole.data.displayName || "");
+          setName(fetchedRole.data.name || "");
+        } else {
+          showError("Lấy thông tin vai trò thất bại!", fetchedRole.message);
+        }
+      } catch (error: any) {
+        showError("Lấy thông tin vai trò thất bại!", error.message);
       } finally {
         setLoading(false);
       }
@@ -46,9 +48,9 @@ export default function GetRoleByIDComponent({ params }: { params: ParamsUser })
     if (!role) return;
 
     try {
-      const res = await updateRole(params.id, { name, displayName })
+      const res = await updateRole(params.id, { name, displayName }); // IResponse
 
-      if (res?.statusCode === 200) {
+      if (res.ok) {
         showSuccess("Cập nhật thành công", "Thông tin vai trò đã được cập nhật.");
 
         setRole((prev) =>
@@ -58,10 +60,10 @@ export default function GetRoleByIDComponent({ params }: { params: ParamsUser })
                 name,
                 displayName,
               }
-            : prev
+            : null
         );
       } else {
-        showError("Cập nhật thất bại", res?.message);
+        showError("Cập nhật thất bại", res.message);
       }
     } catch (err: any) {
       showError("Có lỗi xảy ra!", err?.message);
@@ -75,13 +77,13 @@ export default function GetRoleByIDComponent({ params }: { params: ParamsUser })
     if (!role) return;
 
     try {
-      const res = await deleteRole(params.id);
+      const res = await deleteRole(params.id); // IResponse
 
-      if (res?.statusCode === 200) {
+      if (res.ok) {
         showSuccess("Xóa thành công", "Vai trò đã được xóa.");
         setRole(null);
       } else {
-        showError("Xóa thất bại", res?.message);
+        showError("Xóa thất bại", res.message);
       }
     } catch (err: any) {
       showError("Có lỗi xảy ra!", err?.message);

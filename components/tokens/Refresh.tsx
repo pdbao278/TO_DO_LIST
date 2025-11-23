@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useNotification } from "@/contexts/NotificationContext";
 import { getTokenInfo, refreshToken } from "@/actions/tokens.action";
-import type { InfoToken } from "@/types/tokens";
+import type { IInfoToken } from "@/types/tokens";
 
 export default function SearchRoles() {
     const { showSuccess, showError } = useNotification();
     const [loading, setLoading] = useState(false);
-    const [token, setToken] = useState<InfoToken | null>(null);
+    const [token, setToken] = useState<IInfoToken | null>(null);
     const [refreshFlag, setRefreshFlag] = useState(false); // Dùng flag để trigger lại useEffect
 
     // Hàm fetch token info
@@ -16,7 +16,7 @@ export default function SearchRoles() {
         setLoading(true);
         try {
             const tokenInfo = await getTokenInfo();
-            setToken(tokenInfo);
+            setToken(tokenInfo.data);
         } catch (error) {
             console.error(error);
             showError("Có lỗi xảy ra khi lấy thông tin token!");

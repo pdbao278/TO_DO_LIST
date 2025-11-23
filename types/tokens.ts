@@ -1,15 +1,15 @@
-export interface SetRoleToken {
+export interface ISetRoleToken {
     id: Number;
     roleName: string;
 }
-export interface InfoToken {
+export interface IInfoToken {
     sub: string;
     username: string;
     role: string;
     devices: string;
     expiresAt: string;
 }
-export interface CreateToken {
+export interface ICreateToken {
     id: Number;
     deviceId: string;
 }

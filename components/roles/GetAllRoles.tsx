@@ -2,16 +2,24 @@
 
 import React, { useEffect, useState } from "react";
 import { getAllRoles } from "@/actions/roles.actions";
-import type { Roles } from "@/types/roles";
+import type { IRoles } from "@/types/roles";
 import { useRouter } from "next/navigation";
 
 export default function GetAllRoles() {
-  const [roles, setRoles] = useState<Roles[]>([]);
-  useEffect(() => {
-    getAllRoles().then(setRoles).catch(console.error);
-  }, []);
+  const [roles, setRoles] = useState<IRoles[]>([]);
 
   const router = useRouter();
+  useEffect(() => {
+  const fetchRoles = async () => {
+    const roles = await getAllRoles();
+   if(roles.ok){
+    setRoles(roles.data)
+   }
+  };
+
+  fetchRoles();
+}, []);
+
   return (
     <div>
       <h2 className="flex justify-center items-center text-amber-600 h-15 text-3xl">

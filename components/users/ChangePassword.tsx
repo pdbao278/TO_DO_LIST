@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { ChangePassword as ChangePasswordType } from "@/types/users";
+import type { IChangePassword as ChangePasswordType } from "@/types/users";
 import { changeUserPassword } from "@/actions/users.actions";
 import { useNotification } from "@/contexts/NotificationContext";
 interface ChangePasswordFormProps {

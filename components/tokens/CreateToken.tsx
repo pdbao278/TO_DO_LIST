@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import type { CreateToken } from "@/types/tokens";
+import type { ICreateToken } from "@/types/tokens";
 import {createToken } from "@/actions/tokens.action";
 import { useNotification } from "@/contexts/NotificationContext";
 import { Result } from "antd";
@@ -17,7 +17,7 @@ export default function ChangePasswordForm() {
 
     setLoading(true);
     try {
-      const payload: CreateToken = {
+      const payload: ICreateToken = {
         id:id,
         deviceId:deviceId
       };
@@ -47,7 +47,7 @@ export default function ChangePasswordForm() {
     <label className="block text-sm font-semibold text-gray-700 mb-2">Id người dùng:</label>
     <input
       type="number"
-      value={id}
+      value={isNaN(id) ? 0 : id} 
       onChange={(e) => setId(e.target.valueAsNumber)}
       className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
       required

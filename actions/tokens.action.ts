@@ -1,10 +1,11 @@
 "use server";
 import { cookies } from "next/headers";
-import type { SetRoleToken, CreateToken  } from "@/types/tokens";
+import type { ISetRoleToken, ICreateToken  } from "@/types/tokens";
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
-
+import { IBaseResponse, IIndexResponse, IShowResponse ,IResponse} from "@/types/global";
+import { IInfoToken } from "@/types/tokens";
 // Change user role
-export const setRoleToken = async ( formData: SetRoleToken) => {
+export const setRoleToken = async ( formData: ISetRoleToken) => {
 
   const response = await fetch(`${API_URL}/tokens/set-role`, {
     method: "POST",
@@ -14,12 +15,13 @@ export const setRoleToken = async ( formData: SetRoleToken) => {
     },
     body: JSON.stringify(formData),
   });
+  const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error("Failed to change role");
-  }
-  
-  return await response.json();
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+  } as IBaseResponse;
 };
 
 
@@ -31,12 +33,15 @@ export const getTokenInfo = async () => {
       Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
     },
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch token info");
-  }
 
   const data = await response.json();
-  return data.data;
+return {
+  ok: response.ok,
+  statusCode: response.status,
+  message: data.message,
+  data: data.data as IInfoToken
+} as IShowResponse<IInfoToken>;
+
 }
 
 
@@ -48,14 +53,16 @@ export const refreshToken = async () => {
       Authorization: `Bearer ${(await cookies()).get("accessToken")?.value}`,
     },
   });
-  if (!response.ok) {
-    throw new Error("Failed to refresh token");
-  }
   const data = await response.json();
-  return data.data;
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+  } as IBaseResponse;
 }
 
-export const createToken = async (formData:CreateToken) => {
+export const createToken = async (formData:ICreateToken) => {
   const response = await fetch(`${API_URL}/tokens/create`,{
     method:"POST",
     headers: {
@@ -64,10 +71,12 @@ export const createToken = async (formData:CreateToken) => {
     },
     body: JSON.stringify(formData)
   });
-  if (!response.ok) {
-    throw new Error("Failed to create token");
-  }
-    
-  return await response.json();
+    const data = await response.json();
+
+  return {
+    ok: response.ok,
+    statusCode: response.status,
+    message:data.message,
+  } as IBaseResponse;
 
 }
